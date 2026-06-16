@@ -5,6 +5,12 @@ name: Validate Real Data
 # network policy. Trigger manually (workflow_dispatch).
 
 on:
+  # Auto-runs when this validation file changes on the branch (no default-branch
+  # requirement, unlike workflow_dispatch) — so it works straight from the PR branch.
+  push:
+    paths:
+      - ".github/workflows/validate-real.yml"
+      - "backend/validate_real.py"
   workflow_dispatch:
     inputs:
       symbol:
@@ -51,4 +57,8 @@ jobs:
           PY
 
       - name: Validación de edge con datos reales
-        run: python validate_real.py "${{ inputs.symbol }}" "${{ inputs.timeframe }}" "${{ inputs.bars }}"
+        env:
+          SYMBOL: ${{ github.event.inputs.symbol }}
+          TF: ${{ github.event.inputs.timeframe }}
+          BARS: ${{ github.event.inputs.bars }}
+        run: python validate_real.py "${SYMBOL:-BTCUSDT}" "${TF:-4h}" "${BARS:-3000}"
