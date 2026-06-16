@@ -109,6 +109,16 @@ export const register = (name: string, email: string, password: string) =>
 export const login = (email: string, password: string) =>
   postJSON<AuthResponse>("/auth/login", { email, password });
 
+export interface ValidationResult {
+  metrics: Record<string, number | null>;
+  walk_forward: { folds: number; fold_returns_pct: number[]; pct_folds_profitable: number; mean_fold_return_pct: number };
+  monte_carlo: Record<string, number | string>;
+  verdict: { score: number; max_score: number; label: string; summary: string; reasons: string[] };
+}
+
+export const validateEdge = (payload: Record<string, unknown>) =>
+  postJSON<ValidationResult>("/validate", payload);
+
 export async function fetchHistory(token: string) {
   const res = await fetch(`${BASE}/me/history`, {
     headers: { Authorization: `Bearer ${token}` },

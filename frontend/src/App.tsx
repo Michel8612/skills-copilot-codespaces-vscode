@@ -5,6 +5,7 @@ import { EquityChart } from "./components/EquityChart";
 import { AgencyPanel } from "./components/AgencyPanel";
 import { FondeoPanel } from "./components/FondeoPanel";
 import { ClientPanel } from "./components/ClientPanel";
+import { ValidationPanel } from "./components/ValidationPanel";
 
 const STATUS_LABELS: Record<string, string> = {
   passed: "PASÓ ✅",
@@ -17,7 +18,7 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<RunResult | null>(null);
-  const [tab, setTab] = useState<"backtest" | "agency" | "fondeo" | "cuenta">("backtest");
+  const [tab, setTab] = useState<"backtest" | "validacion" | "agency" | "fondeo" | "cuenta">("backtest");
 
   // Form state
   const [market, setMarket] = useState("forex");
@@ -86,6 +87,9 @@ export function App() {
           <button className={tab === "backtest" ? "tab active" : "tab"} onClick={() => setTab("backtest")}>
             Backtest &amp; Challenge
           </button>
+          <button className={tab === "validacion" ? "tab active" : "tab"} onClick={() => setTab("validacion")}>
+            Validación
+          </button>
           <button className={tab === "agency" ? "tab active" : "tab"} onClick={() => setTab("agency")}>
             Agencia IA
           </button>
@@ -98,6 +102,7 @@ export function App() {
         </nav>
       </header>
 
+      {tab === "validacion" && <ValidationPanel />}
       {tab === "agency" && <AgencyPanel />}
       {tab === "fondeo" && <FondeoPanel />}
       {tab === "cuenta" && <ClientPanel />}

@@ -24,6 +24,7 @@ sobre esa base habilitar tres líneas de negocio:
 | Framework de estrategias | ✅ | Estrategias basadas en posición objetivo. Incluye cruce de medias y breakout. |
 | Backtester | ✅ | Event-driven, sin look-ahead, marca a mercado con máximos/mínimos intrabar. |
 | **Motor de reglas de challenge** ⭐ | ✅ | Evalúa profit target, pérdida diaria, drawdown total (estático/trailing), días mínimos y límite de tiempo. |
+| **Validación de edge** 📈 | ✅ | Métricas de robustez (Sharpe, Sortino, profit factor, expectativa) + walk-forward + Monte Carlo, con veredicto conservador (`/api/validate`). |
 | **Agencia de IA** 🤖 | ✅ | Sistema multi-agente (estrategia, riesgo, datos, cumplimiento, negocio + director) que resuelve dilemas. Funciona offline (determinista) o con Claude. |
 | **Empresa de fondeo** 🏦 | ✅ | Base de datos propia (SQLite): planes honestos publicados, traders, cuentas y evaluación auditable. Reparto de beneficios transparente. |
 | **3 líneas de negocio** | ✅ | Fondeo + venta del bot (licencias) + servicio de pase (con reintentos y reembolso honestos). |

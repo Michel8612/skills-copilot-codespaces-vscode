@@ -38,6 +38,21 @@ class RunResponse(BaseModel):
     challenge: Dict
 
 
+class ValidateRequest(BaseModel):
+    market: str = "crypto"
+    symbol: str = "BTCUSDT"
+    timeframe: str = "4h"
+    bars: int = Field(2000, gt=100, le=20_000)
+    source: str = "synthetic"
+    strategy: str = "breakout"
+    strategy_params: Dict = Field(default_factory=dict)
+    leverage: float = Field(3.0, gt=0, le=500)
+    account_size: float = Field(100_000.0, gt=0)
+    folds: int = Field(4, ge=2, le=12)
+    mc_runs: int = Field(2000, ge=100, le=20_000)
+    dd_breach_pct: float = Field(10.0, gt=0)
+
+
 class PresetInfo(BaseModel):
     key: str
     config: ChallengeConfigSchema

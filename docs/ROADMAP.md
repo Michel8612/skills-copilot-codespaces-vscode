@@ -23,6 +23,9 @@ que funciona"*.
 - [x] Conectar datos reales de **crypto** (Binance público, sin API key) vía `source="binance"`.
       Nota: requiere que la política de red del entorno permita el host; si está bloqueado, el
       sistema avisa con claridad y se usa `source="synthetic"`.
+- [x] **Arnés de validación de edge**: métricas de robustez (Sharpe, Sortino, profit factor,
+      expectativa), walk-forward por tramos y Monte Carlo, con veredicto conservador (`/api/validate`).
+- [ ] Optimización de parámetros (walk-forward con re-optimización in-sample).
 - [ ] Datos reales de forex/futuros (requieren proveedor/broker).
 - [ ] Más estrategias + optimización de parámetros y validación *walk-forward*.
 - [ ] Métricas de robustez: Sharpe, Sortino, expectativa, Monte Carlo sobre orden de trades.
