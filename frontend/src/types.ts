@@ -47,6 +47,40 @@ export interface AgencyResult {
   recommendation: string;
 }
 
+export interface Plan {
+  id: number;
+  name: string;
+  line: string;
+  market: string;
+  account_size: number;
+  price: number;
+  profit_split_pct: number;
+  profit_target_pct: number;
+  max_daily_loss_pct: number;
+  max_total_drawdown_pct: number;
+  drawdown_mode: string;
+  min_trading_days: number;
+  max_calendar_days: number;
+}
+
+export interface Account {
+  id: number;
+  trader_id: number;
+  plan_id: number;
+  status: string;
+  starting_balance: number;
+  final_equity: number | null;
+  return_pct: number | null;
+  max_drawdown_pct: number | null;
+  breached_rule: string | null;
+}
+
+export interface EvaluateResult {
+  account: Account;
+  verdict: { status: string; breached_rule: string | null; breach_detail: string | null };
+  backtest_stats: Record<string, number>;
+}
+
 export interface RunResult {
   backtest: {
     account_size: number;

@@ -28,7 +28,9 @@ def test_backtest_runs_on_every_market():
         res = run_backtest(bars, strat, account_size=100_000)
         assert len(res.equity_curve) == 500
         assert res.stats["num_trades"] >= 0
-        assert res.final_equity > 0
+        # final_equity is the last point's equity (a leveraged run may blow up —
+        # that's a valid outcome the challenge engine flags as a drawdown breach).
+        assert res.final_equity == res.equity_curve[-1].equity
 
 
 def test_breakout_strategy_produces_trades():

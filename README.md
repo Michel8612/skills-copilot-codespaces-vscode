@@ -25,9 +25,10 @@ sobre esa base habilitar tres líneas de negocio:
 | Backtester | ✅ | Event-driven, sin look-ahead, marca a mercado con máximos/mínimos intrabar. |
 | **Motor de reglas de challenge** ⭐ | ✅ | Evalúa profit target, pérdida diaria, drawdown total (estático/trailing), días mínimos y límite de tiempo. |
 | **Agencia de IA** 🤖 | ✅ | Sistema multi-agente (estrategia, riesgo, datos, cumplimiento, negocio + director) que resuelve dilemas. Funciona offline (determinista) o con Claude. |
-| API REST (FastAPI) | ✅ | `/api/meta`, `/api/run`, `/api/health`, `/api/agency/*`. |
-| Frontend (React + Vite) | ✅ | Panel con pestañas: Backtest & Challenge y Agencia IA. |
-| Tests | ✅ | 17 tests del motor, las reglas y la agencia. |
+| **Empresa de fondeo** 🏦 | ✅ | Base de datos propia (SQLite): planes honestos publicados, traders, cuentas y evaluación auditable. Reparto de beneficios transparente. |
+| API REST (FastAPI) | ✅ | `/api/meta`, `/api/run`, `/api/health`, `/api/agency/*`, `/api/fondeo/*`. |
+| Frontend (React + Vite) | ✅ | Panel con pestañas: Backtest & Challenge, Agencia IA y Fondeo. |
+| Tests | ✅ | 21 tests (motor, reglas, agencia y fondeo). |
 
 Ver el plan completo hacia las 3 líneas de negocio en [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
@@ -50,6 +51,10 @@ backend/
       providers.py     # proveedor LLM enchufable (offline / Claude)
       roster.py        # roles de agentes especializados
       orchestrator.py  # deliberación multi-agente + síntesis  🤖
+    fondeo/
+      models.py        # tablas: Plan, Trader, Account, Payout
+      db.py            # base de datos SQLite propia
+      service.py       # planes, cuentas y evaluación auditable  🏦
   tests/               # pytest
 frontend/
   src/                 # React + TypeScript (Vite)
@@ -123,3 +128,25 @@ curl -s -X POST http://localhost:8000/api/agency/ask \
 - **Sin configuración** funciona en modo *offline* (respuestas deterministas basadas en reglas, sin gastar tokens).
 - Si defines la variable de entorno `ANTHROPIC_API_KEY`, usa **Claude** (`claude-opus-4-8`) automáticamente —
   instala primero el extra opcional con `pip install anthropic`.
+
+## Empresa de fondeo (honesta)
+
+Una prop firm propia con **base de datos propia** y reglas transparentes, evaluadas por el mismo motor
+auditable. Principios de honestidad codificados en el sistema: reglas públicas e iguales para todos,
+veredicto determinista y reproducible, reparto de beneficios transparente y reglas congeladas por cuenta.
+
+```bash
+# Planes publicados (sembrados al arrancar)
+curl -s http://localhost:8000/api/fondeo/plans
+
+# Flujo: registrar trader -> abrir cuenta -> evaluar con el bot
+curl -s -X POST http://localhost:8000/api/fondeo/traders \
+  -H 'Content-Type: application/json' -d '{"name":"Ada","email":"ada@x.com"}'
+# (usa el id devuelto)
+curl -s -X POST http://localhost:8000/api/fondeo/accounts \
+  -H 'Content-Type: application/json' -d '{"trader_id":1,"plan_id":1}'
+curl -s -X POST http://localhost:8000/api/fondeo/accounts/1/evaluate \
+  -H 'Content-Type: application/json' -d '{"strategy":"breakout","symbol":"EURUSD","leverage":3}'
+```
+
+La base de datos es SQLite (`fondeo.sqlite`, configurable con `FONDEO_DB_URL`).

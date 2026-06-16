@@ -9,6 +9,7 @@ interface without touching the rest of the engine.
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import List
@@ -83,7 +84,10 @@ class SyntheticDataProvider(MarketDataProvider):
             raise ValueError("bars must be positive")
 
         profile = MARKET_PROFILES[market]
-        seed = abs(hash((market, symbol, timeframe, bars))) % (2**32)
+        # Stable seed across processes — Python's built-in hash() is salted per
+        # run, which would make backtests non-reproducible. hashlib is stable.
+        digest = hashlib.md5(f"{market}|{symbol}|{timeframe}|{bars}".encode()).digest()
+        seed = int.from_bytes(digest[:4], "big")
         rng = np.random.default_rng(seed)
 
         bars_per_year = _BARS_PER_YEAR[timeframe]

@@ -46,10 +46,19 @@ que funciona"*.
 
 ## Fase 5 — Línea de negocio: empresa de fondeo (prop firm)
 
-- [ ] Definir reglas propias de challenge y planes de cuenta.
-- [ ] Panel de traders, cuentas demo, evaluación automática con el motor de reglas.
-- [ ] Gestión de payouts y tesorería.
+- [x] Base de datos propia (SQLite) con planes, traders, cuentas y payouts.
+- [x] Planes honestos publicados y evaluación automática con el motor de reglas auditable.
+- [x] Reparto de beneficios transparente (profit split por plan).
+- [ ] Panel de cliente completo (registro/login, historial, pagos).
+- [ ] Gestión de tesorería y capital (real vs simulado, claramente declarado).
 - [ ] Marco legal y regulatorio (asesoría profesional imprescindible).
+
+### Principios de honestidad (codificados / a mantener)
+
+- Reglas públicas e idénticas para todos; veredicto determinista y reproducible.
+- Reglas congeladas por cuenta (no se cambian a mitad de evaluación).
+- Reparto de beneficios y calendario de pagos transparentes.
+- El mismo bot que se vende es el que se usa; modelo de capital declarado sin ambigüedad.
 
 ---
 
