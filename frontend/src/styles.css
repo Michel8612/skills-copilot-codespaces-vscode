@@ -1,0 +1,110 @@
+:root {
+  --bg: #0f1419;
+  --card: #1a2029;
+  --border: #2a323d;
+  --text: #e6e9ee;
+  --muted: #8b95a3;
+  --accent: #2d9cdb;
+  --green: #27ae60;
+  --red: #eb5757;
+  --amber: #f2c94c;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.app {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+h1 { font-size: 1.5rem; margin: 0 0 4px; }
+.muted { color: var(--muted); }
+.small { font-size: 0.85rem; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+input, select {
+  background: #0f1419;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+button {
+  margin-top: 16px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+button:disabled { opacity: 0.6; cursor: default; }
+
+.error { color: var(--red); }
+
+.status {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 8px 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.status-passed { background: rgba(39,174,96,0.15); color: var(--green); }
+.status-failed { background: rgba(235,87,87,0.15); color: var(--red); }
+.status-in_progress { background: rgba(242,201,76,0.15); color: var(--amber); }
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 12px 0 20px;
+}
+.metric {
+  background: #0f1419;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.metric-value { font-size: 1.3rem; font-weight: 600; }
+.metric-label { font-size: 0.78rem; color: var(--muted); }
+
+.chart { background: #0f1419; border-radius: 8px; border: 1px solid var(--border); }
+.chart-label { fill: var(--muted); font-size: 11px; }
+
+footer { margin-top: 32px; }
