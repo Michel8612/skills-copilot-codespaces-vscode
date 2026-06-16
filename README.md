@@ -24,9 +24,10 @@ sobre esa base habilitar tres líneas de negocio:
 | Framework de estrategias | ✅ | Estrategias basadas en posición objetivo. Incluye cruce de medias y breakout. |
 | Backtester | ✅ | Event-driven, sin look-ahead, marca a mercado con máximos/mínimos intrabar. |
 | **Motor de reglas de challenge** ⭐ | ✅ | Evalúa profit target, pérdida diaria, drawdown total (estático/trailing), días mínimos y límite de tiempo. |
-| API REST (FastAPI) | ✅ | `/api/meta`, `/api/run`, `/api/health`. |
-| Frontend (React + Vite) | ✅ | Panel para configurar, ejecutar y visualizar resultados (curva de equity, estado del challenge). |
-| Tests | ✅ | 11 tests del motor y las reglas. |
+| **Agencia de IA** 🤖 | ✅ | Sistema multi-agente (estrategia, riesgo, datos, cumplimiento, negocio + director) que resuelve dilemas. Funciona offline (determinista) o con Claude. |
+| API REST (FastAPI) | ✅ | `/api/meta`, `/api/run`, `/api/health`, `/api/agency/*`. |
+| Frontend (React + Vite) | ✅ | Panel con pestañas: Backtest & Challenge y Agencia IA. |
+| Tests | ✅ | 17 tests del motor, las reglas y la agencia. |
 
 Ver el plan completo hacia las 3 líneas de negocio en [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
@@ -45,6 +46,10 @@ backend/
       strategies.py    # framework + estrategias de referencia
       backtest.py      # backtester event-driven
       challenge.py     # motor de reglas de prop-firm  ⭐
+    agency/
+      providers.py     # proveedor LLM enchufable (offline / Claude)
+      roster.py        # roles de agentes especializados
+      orchestrator.py  # deliberación multi-agente + síntesis  🤖
   tests/               # pytest
 frontend/
   src/                 # React + TypeScript (Vite)
@@ -104,3 +109,17 @@ curl -s -X POST http://localhost:8000/api/run \
 
 Devuelve el resultado del backtest **y** el veredicto del challenge (`passed` / `failed` / `in_progress`),
 incluida la regla que se violó y en qué momento.
+
+## Agencia de IA
+
+Un equipo de agentes especializados delibera sobre un dilema y un director sintetiza una recomendación.
+
+```bash
+curl -s -X POST http://localhost:8000/api/agency/ask \
+  -H 'Content-Type: application/json' \
+  -d '{"question": "¿Cómo valido que la estrategia tiene edge antes de venderla?"}'
+```
+
+- **Sin configuración** funciona en modo *offline* (respuestas deterministas basadas en reglas, sin gastar tokens).
+- Si defines la variable de entorno `ANTHROPIC_API_KEY`, usa **Claude** (`claude-opus-4-8`) automáticamente —
+  instala primero el extra opcional con `pip install anthropic`.

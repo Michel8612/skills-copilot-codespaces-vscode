@@ -40,3 +40,10 @@ class RunResponse(BaseModel):
 class PresetInfo(BaseModel):
     key: str
     config: ChallengeConfigSchema
+
+
+class AgencyRequest(BaseModel):
+    question: str = Field(..., min_length=3)
+    max_agents: int = Field(4, ge=1, le=6)
+    # Optionally run a backtest first and feed its results as context to the agents.
+    run: Optional[RunRequest] = None

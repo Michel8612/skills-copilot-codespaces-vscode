@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchMeta, runBacktest } from "./api";
 import type { Meta, RunResult } from "./types";
 import { EquityChart } from "./components/EquityChart";
+import { AgencyPanel } from "./components/AgencyPanel";
 
 const STATUS_LABELS: Record<string, string> = {
   passed: "PASÓ ✅",
@@ -14,6 +15,7 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<RunResult | null>(null);
+  const [tab, setTab] = useState<"backtest" | "agency">("backtest");
 
   // Form state
   const [market, setMarket] = useState("forex");
@@ -72,12 +74,24 @@ export function App() {
   return (
     <div className="app">
       <header>
-        <h1>Fondeo Bot · Panel de pruebas de challenge</h1>
+        <h1>Fondeo Bot</h1>
         <p className="muted">
-          Configura una estrategia, ejecuta el backtest y verifica objetivamente si habría pasado el challenge.
+          Motor de trading + evaluación de challenges, y una agencia de IA que resuelve los dilemas del proyecto.
         </p>
+        <nav className="tabs">
+          <button className={tab === "backtest" ? "tab active" : "tab"} onClick={() => setTab("backtest")}>
+            Backtest &amp; Challenge
+          </button>
+          <button className={tab === "agency" ? "tab active" : "tab"} onClick={() => setTab("agency")}>
+            Agencia IA
+          </button>
+        </nav>
       </header>
 
+      {tab === "agency" && <AgencyPanel />}
+
+      {tab === "backtest" && (
+      <>
       <section className="card form">
         <div className="grid">
           <label>
@@ -159,6 +173,8 @@ export function App() {
 
           <EquityChart curve={result.backtest.equity_curve} accountSize={result.backtest.account_size} />
         </section>
+      )}
+      </>
       )}
 
       <footer className="muted small">

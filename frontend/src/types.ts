@@ -28,6 +28,25 @@ export interface EquityPoint {
   equity_low: number;
 }
 
+export interface AgentInfo {
+  key: string;
+  title: string;
+  mission: string;
+}
+
+export interface AgencyRoster {
+  backend: string;
+  roster: AgentInfo[];
+}
+
+export interface AgencyResult {
+  backend: string;
+  question: string;
+  panel: { key: string; title: string }[];
+  contributions: { key: string; title: string; response: string }[];
+  recommendation: string;
+}
+
 export interface RunResult {
   backtest: {
     account_size: number;

@@ -11,7 +11,12 @@ que funciona"*.
 - [x] Backtester event-driven sin look-ahead.
 - [x] Motor de reglas de challenge (profit target, pérdida diaria, drawdown estático/trailing, días mín, límite de tiempo).
 - [x] API REST + frontend de panel.
+- [x] **Agencia de IA**: capa multi-agente (estrategia, riesgo, datos, cumplimiento, negocio + director) con proveedor LLM enchufable (offline determinista / Claude).
 - [x] Suite de tests.
+
+> La Agencia de IA es el "cerebro" que coordina el proyecto y resuelve dilemas. Hoy razona con reglas
+> (offline) o con Claude; en fases siguientes se le conectarán como herramientas el motor de backtest,
+> los datos reales y la ejecución, para que pueda *actuar* y no solo aconsejar.
 
 ## Fase 1 — Datos y estrategias reales
 

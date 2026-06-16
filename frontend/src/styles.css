@@ -51,14 +51,66 @@ label {
   color: var(--muted);
 }
 
-input, select {
+input, select, textarea {
   background: #0f1419;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 8px 10px;
   color: var(--text);
   font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
 }
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+.tab {
+  margin: 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+.tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.section-title { font-size: 1.05rem; margin: 0 0 8px; }
+
+.roster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.agent-chip {
+  background: #0f1419;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.reco {
+  white-space: pre-wrap;
+  background: #0f1419;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+.contribution { margin-bottom: 8px; }
+.contribution summary { cursor: pointer; color: var(--accent); padding: 6px 0; }
 
 button {
   margin-top: 16px;
