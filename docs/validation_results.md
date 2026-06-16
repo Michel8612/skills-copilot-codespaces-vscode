@@ -12,6 +12,7 @@ Ejecutado en GitHub Actions (red abierta), datos reales de Binance.
 | ma_crossover    | sin_evidencia  |  1.025 | 0.881         | -0.56          | 40.0                   | -21.19%           |
 | trend_breakout  | sin_evidencia  | -0.624 | 0.763         |  0.00          | 0.0                    | -9.39%            |
 | trend_rsi       | sin_evidencia  |  0.175 | 0.979         | -0.39          | 40.0                   | -4.60%            |
+| oracle_trend_rsi| sin_evidencia  | -0.324 | 0.762         | **+0.29**      | 40.0                   | **+1.83%**        |
 
 ### Lectura honesta
 
@@ -33,5 +34,19 @@ mismo, sin garantías.
 2. Generación masiva con StrategyQuant X + filtrado con este arnés — búsqueda más rápida, riesgo de overfitting.
 3. Asumir el hallazgo y centrar el valor en la **plataforma y los servicios** (lo ya construido), tratando
    la estrategia como I+D continua.
+
+### Pista del oráculo (señal externa)
+
+`oracle_trend_rsi` es la única de las 7 con **eficiencia walk-forward positiva (+0.29)** y **retorno OOS
+positivo (+1.83%)**, pese a seguir sin pasar (PF 0.76). El motivo: el *gating* del oráculo filtra
+operaciones malas. Y eso usando solo un oráculo mock (que re-lee el precio, sin información nueva).
+
+→ La hipótesis a probar: un oráculo con **información real** que el precio no descuenta — p. ej. el
+**sentimiento contrario** del Community Outlook de Myfxbook (cuando la masa minorista está larga, suele ser
+bajista). Ya está implementado `ContrarianSentimentOracle`; falta alimentarlo con datos.
+
+**Limitación honesta**: Myfxbook publica el sentimiento *actual*, no un histórico libre. Para backtestear
+hace falta **registrar el sentimiento hacia adelante** (forward-logging) durante semanas y validar sobre
+ese periodo. Es el método científico correcto, pero lleva tiempo de calendario.
 
 > Reproducible vía `.github/workflows/validate-real.yml`.

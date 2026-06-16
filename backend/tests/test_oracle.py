@@ -2,7 +2,12 @@
 
 from app.engine.backtest import run_backtest
 from app.engine.data import Bar, default_provider
-from app.engine.oracle import MockOracle, NeutralOracle, build_oracle
+from app.engine.oracle import (
+    ContrarianSentimentOracle,
+    MockOracle,
+    NeutralOracle,
+    build_oracle,
+)
 from app.engine.strategies import STRATEGY_REGISTRY, build_strategy, strategy_param_grid
 
 
@@ -31,6 +36,22 @@ def test_oracle_gated_strategy_registered_and_runs():
     assert len(bt.equity_curve) == 1200
     for params in strategy_param_grid("oracle_trend_rsi"):
         build_strategy("oracle_trend_rsi", params)
+
+
+def test_contrarian_sentiment_inverts_the_crowd():
+    from datetime import datetime
+
+    t = datetime(2024, 1, 1, 12, 0)
+    bar = Bar(time=t, open=1, high=1, low=1, close=1, volume=1)
+    key = t.isoformat()
+    crowd_long = ContrarianSentimentOracle({key: 80.0})    # 80% long -> bearish
+    crowd_short = ContrarianSentimentOracle({key: 20.0})   # 20% long -> bullish
+    balanced = ContrarianSentimentOracle({key: 52.0})      # inside neutral band
+    assert crowd_long.bias([bar]) < 0
+    assert crowd_short.bias([bar]) > 0
+    assert balanced.bias([bar]) == 0.0
+    # No datapoint for this bar -> graceful neutral.
+    assert ContrarianSentimentOracle({}).bias([bar]) == 0.0
 
 
 def test_neutral_oracle_gates_out_all_trades():

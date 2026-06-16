@@ -55,9 +55,49 @@ class MockOracle(Oracle):
         return max(-1.0, min(1.0, change * 10))
 
 
+class ContrarianSentimentOracle(Oracle):
+    """Contrarian retail-sentiment oracle (the Myfxbook "Community Outlook" idea).
+
+    Given the % of retail traders that are LONG a symbol at each bar, it leans
+    the *opposite* way: when the crowd is heavily long, retail is usually wrong,
+    so the bias turns bearish (and vice-versa). This is real *information* the
+    price does not directly contain — the kind of input that can actually carry
+    an edge, unlike a price-only oracle.
+
+    `sentiment` maps an ISO-8601 timestamp -> long_pct in [0, 100]. Bars whose
+    timestamp has no sentiment datapoint produce a neutral (0) bias, so the
+    oracle degrades gracefully when data is missing.
+    """
+
+    name = "contrarian_sentiment"
+
+    def __init__(self, sentiment: Dict[str, float] | None = None, neutral_band: float = 10.0):
+        self.sentiment = sentiment or {}
+        self.neutral_band = neutral_band
+
+    def bias(self, bars: List[Bar]) -> float:
+        last = bars[-1]
+        key = last.time.isoformat() if getattr(last, "time", None) is not None else None
+        if key is None or key not in self.sentiment:
+            return 0.0
+        diff = self.sentiment[key] - 50.0  # >0 means crowd is net long
+        if abs(diff) < self.neutral_band:
+            return 0.0
+        return max(-1.0, min(1.0, -diff / 50.0))  # contrarian: invert the crowd
+
+
+def load_sentiment_json(path: str) -> Dict[str, float]:
+    """Load a {iso_time: long_pct} sentiment map written by a forward-logger."""
+    import json
+
+    with open(path, "r", encoding="utf-8") as fh:
+        return {str(k): float(v) for k, v in json.load(fh).items()}
+
+
 ORACLE_REGISTRY: Dict[str, Type[Oracle]] = {
     NeutralOracle.name: NeutralOracle,
     MockOracle.name: MockOracle,
+    ContrarianSentimentOracle.name: ContrarianSentimentOracle,
 }
 
 
