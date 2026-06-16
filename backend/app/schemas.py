@@ -16,6 +16,7 @@ class ChallengeConfigSchema(BaseModel):
     drawdown_mode: str = "trailing"
     min_trading_days: int = Field(4, ge=0)
     max_calendar_days: int = Field(30, ge=0)
+    max_single_day_profit_pct: float = Field(0.0, ge=0)
 
 
 class RunRequest(BaseModel):

@@ -36,6 +36,9 @@ class ChallengeConfig:
     drawdown_mode: str = "trailing"  # "static" | "trailing"
     min_trading_days: int = 4
     max_calendar_days: int = 30
+    # Consistency rule (like many real prop firms): a single day's profit may not
+    # exceed this % of total profit. 0 disables it.
+    max_single_day_profit_pct: float = 0.0
 
     def __post_init__(self):
         if self.drawdown_mode not in ("static", "trailing"):
@@ -186,6 +189,23 @@ def evaluate_challenge(
 
     # No rule breached: did it hit the profit target with enough trading days?
     if profit_reached_time is not None and days_count >= config.min_trading_days:
+        # Consistency rule: no single day may dominate the total profit.
+        if config.max_single_day_profit_pct > 0:
+            best_day = _best_day_profit(equity_curve, acct)
+            total_profit = equity_curve[-1].equity - acct
+            if total_profit > 0:
+                share = best_day / total_profit * 100
+                metrics["best_day_profit_pct"] = round(share, 1)
+                if share > config.max_single_day_profit_pct:
+                    return ChallengeResult(
+                        status="in_progress",
+                        breach_detail=(
+                            f"Regla de consistencia: el mejor día concentra {share:.0f}% del "
+                            f"beneficio (máx {config.max_single_day_profit_pct}%). Sigue operando "
+                            "para equilibrar los resultados."
+                        ),
+                        metrics=metrics,
+                    )
         return ChallengeResult(
             status="passed",
             pass_time=profit_reached_time,
@@ -196,6 +216,25 @@ def evaluate_challenge(
     if profit_reached_time is not None and days_count < config.min_trading_days:
         detail = f"Profit target hit but only {days_count}/{config.min_trading_days} trading days"
     return ChallengeResult(status="in_progress", breach_detail=detail, metrics=metrics)
+
+
+def _best_day_profit(curve: List[EquityPoint], account_size: float) -> float:
+    """Largest single-day net profit (day close-to-close), for the consistency rule."""
+    day_close = []  # [date, last_equity_of_day] in order
+    current = None
+    for p in curve:
+        d = p.time.date()
+        if current != d:
+            day_close.append([d, p.equity])
+            current = d
+        else:
+            day_close[-1][1] = p.equity
+    prev = account_size
+    best = 0.0
+    for _, close in day_close:
+        best = max(best, close - prev)
+        prev = close
+    return best
 
 
 def _prev_equity(curve: List[EquityPoint], point: EquityPoint) -> Optional[float]:

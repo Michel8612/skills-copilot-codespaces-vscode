@@ -164,13 +164,86 @@ class Momentum(Strategy):
         return [{"lookback": n} for n in (10, 20, 40)]
 
 
+def _sma(closes: List[float], n: int) -> float:
+    return sum(closes[-n:]) / n
+
+
+@dataclass
+class TrendBreakout(Strategy):
+    """Breakout, but only in the direction of a long-term trend filter.
+
+    Avoids counter-trend whipsaws: only goes long on a breakout when price is
+    above the trend SMA, and short on a breakdown when below it.
+    """
+
+    name: str = field(default="trend_breakout", init=False)
+    lookback: int = 20
+    trend: int = 100
+    allow_short: bool = True
+
+    def target_position(self, bars: List[Bar]) -> int:
+        if len(bars) <= max(self.lookback, self.trend):
+            return 0
+        closes = [b.close for b in bars]
+        sma = _sma(closes, self.trend)
+        window = bars[-(self.lookback + 1):-1]
+        last = bars[-1]
+        if last.close >= max(b.high for b in window) and last.close > sma:
+            return 1
+        if last.close <= min(b.low for b in window) and last.close < sma:
+            return -1 if self.allow_short else 0
+        return 0
+
+    @classmethod
+    def describe(cls) -> Dict:
+        return {"name": cls.name, "params": {"lookback": 20, "trend": 100, "allow_short": True}}
+
+    @classmethod
+    def param_grid(cls) -> List[Dict]:
+        return [{"lookback": lb, "trend": t} for lb in (15, 20, 30) for t in (50, 100, 150)]
+
+
+@dataclass
+class TrendRSI(Strategy):
+    """Buy dips in an uptrend, sell rips in a downtrend (RSI + trend filter)."""
+
+    name: str = field(default="trend_rsi", init=False)
+    period: int = 14
+    oversold: int = 35
+    trend: int = 100
+    allow_short: bool = True
+
+    def target_position(self, bars: List[Bar]) -> int:
+        if len(bars) <= max(self.period, self.trend):
+            return 0
+        closes = [b.close for b in bars]
+        sma = _sma(closes, self.trend)
+        rsi = _rsi(closes, self.period)
+        last = closes[-1]
+        if last > sma and rsi <= self.oversold:
+            return 1
+        if last < sma and rsi >= 100 - self.oversold:
+            return -1 if self.allow_short else 0
+        return 0
+
+    @classmethod
+    def describe(cls) -> Dict:
+        return {"name": cls.name, "params": {"period": 14, "oversold": 35, "trend": 100, "allow_short": True}}
+
+    @classmethod
+    def param_grid(cls) -> List[Dict]:
+        return [{"period": p, "oversold": o, "trend": t}
+                for p in (7, 14) for o in (30, 35, 40) for t in (100, 150)]
+
+
 STRATEGY_REGISTRY: Dict[str, Type[Strategy]] = {
     MovingAverageCrossover.name: MovingAverageCrossover,
     Breakout.name: Breakout,
     RSIReversion.name: RSIReversion,
     Momentum.name: Momentum,
+    TrendBreakout.name: TrendBreakout,
+    TrendRSI.name: TrendRSI,
 }
-
 
 def build_strategy(name: str, params: Dict | None = None) -> Strategy:
     if name not in STRATEGY_REGISTRY:
