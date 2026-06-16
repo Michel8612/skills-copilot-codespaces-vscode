@@ -13,7 +13,7 @@ from .agency.orchestrator import deliberate
 from .agency.providers import get_provider
 from .agency.roster import list_roster
 from .engine.challenge import PRESETS
-from .engine.data import supported_markets, supported_timeframes
+from .engine.data import supported_markets, supported_sources, supported_timeframes
 from .engine.strategies import list_strategies
 from .fondeo import lines as fondeo_lines
 from .fondeo import service as fondeo_service
@@ -66,6 +66,7 @@ def meta():
     return {
         "markets": supported_markets(),
         "timeframes": supported_timeframes(),
+        "sources": supported_sources(),
         "strategies": list_strategies(),
         "presets": {k: asdict(v) for k, v in PRESETS.items()},
     }
@@ -149,7 +150,8 @@ def fondeo_evaluate(account_id: int, req: AccountEvaluate, session: Session = De
         return fondeo_service.evaluate_account(
             session, account_id,
             strategy=req.strategy, strategy_params=req.strategy_params,
-            symbol=req.symbol, timeframe=req.timeframe, bars=req.bars, leverage=req.leverage,
+            symbol=req.symbol, timeframe=req.timeframe, bars=req.bars,
+            leverage=req.leverage, source=req.source,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -222,7 +224,8 @@ def pase_attempt(order_id: int, req: PassAttempt, session: Session = Depends(get
         return fondeo_lines.run_pass_attempt(
             session, order_id,
             strategy=req.strategy, strategy_params=req.strategy_params,
-            symbol=req.symbol, timeframe=req.timeframe, bars=req.bars, leverage=req.leverage,
+            symbol=req.symbol, timeframe=req.timeframe, bars=req.bars,
+            leverage=req.leverage, source=req.source,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

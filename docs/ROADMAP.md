@@ -20,7 +20,10 @@ que funciona"*.
 
 ## Fase 1 — Datos y estrategias reales
 
-- [ ] Conectar datos históricos reales (p. ej. APIs de crypto, datos de forex/futuros).
+- [x] Conectar datos reales de **crypto** (Binance público, sin API key) vía `source="binance"`.
+      Nota: requiere que la política de red del entorno permita el host; si está bloqueado, el
+      sistema avisa con claridad y se usa `source="synthetic"`.
+- [ ] Datos reales de forex/futuros (requieren proveedor/broker).
 - [ ] Más estrategias + optimización de parámetros y validación *walk-forward*.
 - [ ] Métricas de robustez: Sharpe, Sortino, expectativa, Monte Carlo sobre orden de trades.
 - [ ] Comparar resultados contra reglas reales de varias prop firms.

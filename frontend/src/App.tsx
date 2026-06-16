@@ -25,6 +25,7 @@ export function App() {
   const [bars, setBars] = useState(1200);
   const [strategy, setStrategy] = useState("breakout");
   const [leverage, setLeverage] = useState(10);
+  const [source, setSource] = useState("synthetic");
   const [preset, setPreset] = useState("forex_2step_p1");
 
   useEffect(() => {
@@ -51,6 +52,7 @@ export function App() {
         strategy,
         strategy_params: {},
         leverage,
+        source,
         preset,
       });
       setResult(res);
@@ -134,6 +136,14 @@ export function App() {
           <label>
             Apalancamiento
             <input type="number" value={leverage} onChange={(e) => setLeverage(Number(e.target.value))} />
+          </label>
+          <label>
+            Datos
+            <select value={source} onChange={(e) => setSource(e.target.value)}>
+              {(meta.sources || ["synthetic"]).map((s) => (
+                <option key={s} value={s}>{s === "binance" ? "Binance (real, crypto)" : "Sintético"}</option>
+              ))}
+            </select>
           </label>
           <label>
             Challenge (preset)

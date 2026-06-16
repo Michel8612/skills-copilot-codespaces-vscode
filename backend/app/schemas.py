@@ -23,6 +23,7 @@ class RunRequest(BaseModel):
     symbol: str = "EURUSD"
     timeframe: str = "1h"
     bars: int = Field(1000, gt=10, le=20_000)
+    source: str = "synthetic"  # "synthetic" | "binance" (real crypto data)
     strategy: str = "ma_crossover"
     strategy_params: Dict = Field(default_factory=dict)
     leverage: float = Field(10.0, gt=0, le=500)

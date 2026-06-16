@@ -20,7 +20,7 @@ sobre esa base habilitar tres líneas de negocio:
 
 | Componente | Estado | Descripción |
 |---|---|---|
-| Motor de datos | ✅ | Proveedor de OHLCV sintético determinista para forex / futuros / crypto. Interfaz lista para fuentes reales. |
+| Motor de datos | ✅ | OHLCV sintético determinista (forex/futuros/crypto) **+ datos reales de crypto** vía Binance público (`source="binance"`). |
 | Framework de estrategias | ✅ | Estrategias basadas en posición objetivo. Incluye cruce de medias y breakout. |
 | Backtester | ✅ | Event-driven, sin look-ahead, marca a mercado con máximos/mínimos intrabar. |
 | **Motor de reglas de challenge** ⭐ | ✅ | Evalúa profit target, pérdida diaria, drawdown total (estático/trailing), días mínimos y límite de tiempo. |

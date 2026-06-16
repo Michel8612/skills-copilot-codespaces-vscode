@@ -13,7 +13,7 @@ from sqlmodel import Session, select
 
 from ..engine.backtest import run_backtest
 from ..engine.challenge import ChallengeConfig, evaluate_challenge
-from ..engine.data import default_provider
+from ..engine.data import get_data_provider
 from ..engine.strategies import build_strategy
 from .models import Account, AccountStatus, BusinessLine, Payout, Plan, Trader
 
@@ -108,6 +108,7 @@ def evaluate_account(
     timeframe: str = "4h",
     bars: int = 1200,
     leverage: float = 10.0,
+    source: str = "synthetic",
 ) -> Dict:
     """Run the bot on the account's plan and apply the (frozen) challenge rules."""
     account = session.get(Account, account_id)
@@ -116,7 +117,7 @@ def evaluate_account(
     plan = session.get(Plan, account.plan_id)
     config = _plan_to_config(plan)
 
-    bars_data = default_provider.get_bars(plan.market, symbol, timeframe, bars)
+    bars_data = get_data_provider(source).get_bars(plan.market, symbol, timeframe, bars)
     strat = build_strategy(strategy, strategy_params or {})
     bt = run_backtest(bars_data, strat, account_size=plan.account_size, leverage=leverage)
     active_days = {t.entry_time.date() for t in bt.trades}

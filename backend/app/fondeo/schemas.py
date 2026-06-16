@@ -24,6 +24,7 @@ class AccountEvaluate(BaseModel):
     timeframe: str = "4h"
     bars: int = Field(1200, gt=10, le=20_000)
     leverage: float = Field(10.0, gt=0, le=500)
+    source: str = "synthetic"
 
 
 class PayoutCreate(BaseModel):
@@ -48,6 +49,7 @@ class PassAttempt(BaseModel):
     timeframe: str = "4h"
     bars: int = Field(1200, gt=10, le=20_000)
     leverage: float = Field(3.0, gt=0, le=500)
+    source: str = "synthetic"
 
 
 class PlanCreate(BaseModel):

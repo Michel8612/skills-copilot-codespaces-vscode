@@ -10,8 +10,11 @@ interface without touching the rest of the engine.
 from __future__ import annotations
 
 import hashlib
+import json
+import os
+import urllib.request
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List
 
 import numpy as np
@@ -130,3 +133,98 @@ class SyntheticDataProvider(MarketDataProvider):
 
 # Default provider instance used across the app.
 default_provider = SyntheticDataProvider()
+
+
+# ---------------------------------------------------------------------------
+# Real market data (crypto) via Binance public REST — no API key required.
+# Works wherever outbound HTTPS to the host is allowed. Falls back with a clear
+# error when the environment's network policy blocks it.
+# ---------------------------------------------------------------------------
+
+BINANCE_BASE = os.getenv("BINANCE_BASE_URL", "https://data-api.binance.vision")
+_BINANCE_INTERVAL = {"1h": "1h", "4h": "4h", "1d": "1d"}
+
+
+def _normalize_symbol(symbol: str) -> str:
+    s = symbol.upper().replace("/", "").replace("-", "")
+    if s in ("AUTO", ""):
+        return "BTCUSDT"
+    if s.endswith("USD") and not s.endswith("USDT"):
+        s += "T"  # BTCUSD -> BTCUSDT
+    return s
+
+
+def _http_json(url: str):
+    req = urllib.request.Request(url, headers={"User-Agent": "fondeo-bot/0.1"})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            return json.load(resp)
+    except Exception as e:  # network blocked, host down, rate limited, etc.
+        raise ValueError(
+            f"No se pudieron obtener datos reales ({type(e).__name__}). "
+            "Revisa la política de red del entorno o usa source='synthetic'."
+        )
+
+
+def parse_klines(rows: list) -> List[Bar]:
+    """Map Binance kline rows to Bar objects (pure, testable without network)."""
+    bars: List[Bar] = []
+    for row in rows:
+        bars.append(
+            Bar(
+                time=datetime.fromtimestamp(row[0] / 1000, tz=timezone.utc).replace(tzinfo=None),
+                open=float(row[1]),
+                high=float(row[2]),
+                low=float(row[3]),
+                close=float(row[4]),
+                volume=float(row[5]),
+            )
+        )
+    return bars
+
+
+class BinanceDataProvider(MarketDataProvider):
+    """Fetches real OHLCV candles from Binance's public data endpoint."""
+
+    def __init__(self, base: str = BINANCE_BASE):
+        self.base = base
+
+    def get_bars(self, market: str, symbol: str, timeframe: str, bars: int) -> List[Bar]:
+        if market != "crypto":
+            raise ValueError("La fuente 'binance' solo soporta el mercado crypto")
+        interval = _BINANCE_INTERVAL.get(timeframe)
+        if interval is None:
+            raise ValueError(f"Timeframe '{timeframe}' no soportado por Binance. Opciones: {list(_BINANCE_INTERVAL)}")
+        sym = _normalize_symbol(symbol)
+
+        collected: list = []
+        end_time = None
+        remaining = bars
+        while remaining > 0:
+            limit = min(1000, remaining)
+            url = f"{self.base}/api/v3/klines?symbol={sym}&interval={interval}&limit={limit}"
+            if end_time is not None:
+                url += f"&endTime={end_time}"
+            rows = _http_json(url)
+            if not rows:
+                break
+            collected = rows + collected
+            remaining -= len(rows)
+            end_time = rows[0][0] - 1  # just before the earliest candle fetched
+            if len(rows) < limit:
+                break
+        if not collected:
+            raise ValueError(f"Binance no devolvió datos para {sym} {interval}")
+        return parse_klines(collected[-bars:])
+
+
+def supported_sources() -> List[str]:
+    return ["synthetic", "binance"]
+
+
+def get_data_provider(source: str = "synthetic") -> MarketDataProvider:
+    if source == "binance":
+        return BinanceDataProvider()
+    if source == "synthetic":
+        return default_provider
+    raise ValueError(f"Fuente de datos desconocida '{source}'. Opciones: {supported_sources()}")

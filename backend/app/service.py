@@ -7,7 +7,7 @@ from typing import Dict
 
 from .engine.backtest import run_backtest
 from .engine.challenge import PRESETS, ChallengeConfig, evaluate_challenge
-from .engine.data import default_provider
+from .engine.data import get_data_provider
 from .engine.strategies import build_strategy
 from .schemas import RunRequest
 
@@ -26,7 +26,8 @@ def run_pipeline(req: RunRequest) -> Dict:
     """Run a full backtest and evaluate it against a challenge."""
     config = _resolve_challenge(req)
 
-    bars = default_provider.get_bars(req.market, req.symbol, req.timeframe, req.bars)
+    provider = get_data_provider(req.source)
+    bars = provider.get_bars(req.market, req.symbol, req.timeframe, req.bars)
     strategy = build_strategy(req.strategy, req.strategy_params)
     bt = run_backtest(bars, strategy, account_size=config.account_size, leverage=req.leverage)
 

@@ -24,6 +24,7 @@ export interface RunPayload {
   strategy: string;
   strategy_params: Record<string, unknown>;
   leverage: number;
+  source?: string;
   preset?: string | null;
   challenge?: unknown;
 }

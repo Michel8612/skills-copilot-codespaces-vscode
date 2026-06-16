@@ -17,6 +17,7 @@ export interface ChallengeConfig {
 export interface Meta {
   markets: string[];
   timeframes: string[];
+  sources: string[];
   strategies: StrategyInfo[];
   presets: Record<string, ChallengeConfig>;
 }

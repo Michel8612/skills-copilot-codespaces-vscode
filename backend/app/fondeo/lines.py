@@ -13,7 +13,7 @@ from sqlmodel import Session, select
 
 from ..engine.backtest import run_backtest
 from ..engine.challenge import evaluate_challenge
-from ..engine.data import default_provider
+from ..engine.data import get_data_provider
 from ..engine.strategies import build_strategy
 from .models import (
     BillingPeriod,
@@ -113,6 +113,7 @@ def run_pass_attempt(
     timeframe: str = "4h",
     bars: int = 1200,
     leverage: float = 3.0,
+    source: str = "synthetic",
 ) -> Dict:
     """Run one honest attempt of the bot against the order's plan."""
     order = session.get(PassOrder, order_id)
@@ -125,7 +126,7 @@ def run_pass_attempt(
 
     plan = session.get(Plan, order.plan_id)
     config = _plan_to_config(plan)
-    bars_data = default_provider.get_bars(plan.market, symbol, timeframe, bars)
+    bars_data = get_data_provider(source).get_bars(plan.market, symbol, timeframe, bars)
     strat = build_strategy(strategy, strategy_params or {})
     bt = run_backtest(bars_data, strat, account_size=plan.account_size, leverage=leverage)
     active_days = {t.entry_time.date() for t in bt.trades}
