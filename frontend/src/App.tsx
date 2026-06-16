@@ -4,6 +4,7 @@ import type { Meta, RunResult } from "./types";
 import { EquityChart } from "./components/EquityChart";
 import { AgencyPanel } from "./components/AgencyPanel";
 import { FondeoPanel } from "./components/FondeoPanel";
+import { ClientPanel } from "./components/ClientPanel";
 
 const STATUS_LABELS: Record<string, string> = {
   passed: "PASÓ ✅",
@@ -16,7 +17,7 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<RunResult | null>(null);
-  const [tab, setTab] = useState<"backtest" | "agency" | "fondeo">("backtest");
+  const [tab, setTab] = useState<"backtest" | "agency" | "fondeo" | "cuenta">("backtest");
 
   // Form state
   const [market, setMarket] = useState("forex");
@@ -91,11 +92,15 @@ export function App() {
           <button className={tab === "fondeo" ? "tab active" : "tab"} onClick={() => setTab("fondeo")}>
             Fondeo
           </button>
+          <button className={tab === "cuenta" ? "tab active" : "tab"} onClick={() => setTab("cuenta")}>
+            Mi cuenta
+          </button>
         </nav>
       </header>
 
       {tab === "agency" && <AgencyPanel />}
       {tab === "fondeo" && <FondeoPanel />}
+      {tab === "cuenta" && <ClientPanel />}
 
       {tab === "backtest" && (
       <>

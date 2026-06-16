@@ -156,6 +156,16 @@ button:disabled { opacity: 0.6; cursor: default; }
 .plan-rules li { margin: 3px 0; }
 .plan button { margin-top: 0; width: 100%; }
 
+.history { list-style: none; padding: 0; margin: 0 0 12px; }
+.history li {
+  background: #0f1419;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  font-size: 0.88rem;
+}
+
 .metrics {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));

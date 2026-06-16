@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from dataclasses import asdict
 
-from fastapi import Depends, FastAPI, HTTPException
+from typing import Optional
+
+from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session
 
@@ -15,10 +17,11 @@ from .agency.roster import list_roster
 from .engine.challenge import PRESETS
 from .engine.data import supported_markets, supported_sources, supported_timeframes
 from .engine.strategies import list_strategies
+from .fondeo import auth as fondeo_auth
 from .fondeo import lines as fondeo_lines
 from .fondeo import service as fondeo_service
 from .fondeo.db import engine as fondeo_engine, get_session, init_db
-from .fondeo.models import Plan
+from .fondeo.models import Plan, Trader
 from .fondeo.schemas import (
     AccountEvaluate,
     AccountOpen,
@@ -28,7 +31,21 @@ from .fondeo.schemas import (
     PayoutCreate,
     PlanCreate,
     TraderCreate,
+    UserLogin,
+    UserRegister,
 )
+
+
+def current_trader(
+    authorization: Optional[str] = Header(default=None),
+    session: Session = Depends(get_session),
+) -> Trader:
+    """Resolve the logged-in trader from a 'Bearer <token>' Authorization header."""
+    token = authorization.split(" ", 1)[1] if authorization and " " in authorization else authorization
+    trader = fondeo_auth.trader_for_token(session, token)
+    if trader is None:
+        raise HTTPException(status_code=401, detail="No autenticado")
+    return trader
 from .schemas import AgencyRequest, RunRequest
 from .service import run_pipeline
 
@@ -237,3 +254,48 @@ def pase_refund(order_id: int, session: Session = Depends(get_session)):
         return fondeo_lines.refund_pass_order(session, order_id).model_dump()
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+# --- Client panel: authentication & history -----------------------------------
+
+
+def _public_trader(trader: Trader) -> dict:
+    return {"id": trader.id, "name": trader.name, "email": trader.email}
+
+
+@app.post("/api/auth/register")
+def auth_register(req: UserRegister, session: Session = Depends(get_session)):
+    try:
+        trader = fondeo_auth.register_user(session, req.name, req.email, req.password)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    token = fondeo_auth.login(session, req.email, req.password)
+    return {"token": token, "trader": _public_trader(trader)}
+
+
+@app.post("/api/auth/login")
+def auth_login(req: UserLogin, session: Session = Depends(get_session)):
+    try:
+        token = fondeo_auth.login(session, req.email, req.password)
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    trader = fondeo_auth.trader_for_token(session, token)
+    return {"token": token, "trader": _public_trader(trader)}
+
+
+@app.post("/api/auth/logout")
+def auth_logout(authorization: Optional[str] = Header(default=None), session: Session = Depends(get_session)):
+    token = authorization.split(" ", 1)[1] if authorization and " " in authorization else authorization
+    if token:
+        fondeo_auth.logout(session, token)
+    return {"ok": True}
+
+
+@app.get("/api/me")
+def me(trader: Trader = Depends(current_trader)):
+    return _public_trader(trader)
+
+
+@app.get("/api/me/history")
+def me_history(trader: Trader = Depends(current_trader), session: Session = Depends(get_session)):
+    return fondeo_auth.trader_history(session, trader.id)

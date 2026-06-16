@@ -26,9 +26,11 @@ sobre esa base habilitar tres líneas de negocio:
 | **Motor de reglas de challenge** ⭐ | ✅ | Evalúa profit target, pérdida diaria, drawdown total (estático/trailing), días mínimos y límite de tiempo. |
 | **Agencia de IA** 🤖 | ✅ | Sistema multi-agente (estrategia, riesgo, datos, cumplimiento, negocio + director) que resuelve dilemas. Funciona offline (determinista) o con Claude. |
 | **Empresa de fondeo** 🏦 | ✅ | Base de datos propia (SQLite): planes honestos publicados, traders, cuentas y evaluación auditable. Reparto de beneficios transparente. |
-| API REST (FastAPI) | ✅ | `/api/meta`, `/api/run`, `/api/health`, `/api/agency/*`, `/api/fondeo/*`. |
-| Frontend (React + Vite) | ✅ | Panel con pestañas: Backtest & Challenge, Agencia IA y Fondeo. |
-| Tests | ✅ | 21 tests (motor, reglas, agencia y fondeo). |
+| **3 líneas de negocio** | ✅ | Fondeo + venta del bot (licencias) + servicio de pase (con reintentos y reembolso honestos). |
+| **Panel de cliente** 👤 | ✅ | Registro/login (contraseña con PBKDF2 + token de sesión) e historial unificado de las 3 líneas. |
+| API REST (FastAPI) | ✅ | `/api/run`, `/api/agency/*`, `/api/fondeo/*`, `/api/bot/*`, `/api/pase/*`, `/api/auth/*`, `/api/me/*`. |
+| Frontend (React + Vite) | ✅ | Pestañas: Backtest & Challenge, Agencia IA, Fondeo y Mi cuenta. |
+| Tests | ✅ | 37 tests (motor, reglas, agencia, fondeo, líneas, datos reales y auth). |
 
 Ver el plan completo hacia las 3 líneas de negocio en [`docs/ROADMAP.md`](docs/ROADMAP.md).
 

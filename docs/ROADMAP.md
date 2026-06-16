@@ -52,7 +52,9 @@ que funciona"*.
 - [x] Base de datos propia (SQLite) con planes, traders, cuentas y payouts.
 - [x] Planes honestos publicados y evaluación automática con el motor de reglas auditable.
 - [x] Reparto de beneficios transparente (profit split por plan).
-- [ ] Panel de cliente completo (registro/login, historial, pagos).
+- [x] Línea de venta del bot (licencias) y servicio de pase (reintentos + reembolso honestos).
+- [x] Panel de cliente: registro/login (PBKDF2 + token) e historial unificado.
+- [ ] Pagos reales (pasarela) e historial de transacciones.
 - [ ] Gestión de tesorería y capital (real vs simulado, claramente declarado).
 - [ ] Marco legal y regulatorio (asesoría profesional imprescindible).
 

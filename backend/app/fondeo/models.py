@@ -54,7 +54,16 @@ class Plan(SQLModel, table=True):
 class Trader(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
-    email: str
+    email: str = Field(index=True)
+    hashed_password: Optional[str] = None  # set when the trader registers with a password
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class AuthToken(SQLModel, table=True):
+    """An opaque session token mapping to a trader (created on login)."""
+
+    token: str = Field(primary_key=True)
+    trader_id: int = Field(foreign_key="trader.id", index=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 

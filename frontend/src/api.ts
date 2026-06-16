@@ -95,3 +95,28 @@ export const evaluateAccount = (accountId: number) =>
     strategy: "breakout",
     leverage: 3,
   });
+
+// --- Client panel auth ---
+
+export interface AuthResponse {
+  token: string;
+  trader: { id: number; name: string; email: string };
+}
+
+export const register = (name: string, email: string, password: string) =>
+  postJSON<AuthResponse>("/auth/register", { name, email, password });
+
+export const login = (email: string, password: string) =>
+  postJSON<AuthResponse>("/auth/login", { email, password });
+
+export async function fetchHistory(token: string) {
+  const res = await fetch(`${BASE}/me/history`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`history failed: ${res.status}`);
+  return res.json() as Promise<{
+    accounts: { id: number; plan_id: number; status: string; return_pct: number | null }[];
+    licenses: { id: number; tier_id: number; status: string }[];
+    pass_orders: { id: number; plan_id: number; status: string; attempts: number }[];
+  }>;
+}
