@@ -202,22 +202,33 @@ def page_status(pdf):
     plt.close(fig)
 
 
-def page_opinion(pdf):
+def page_roadmap(pdf):
     fig, ax = new_page(pdf)
-    heading(ax, "Opinión del compañero", sub="Para que la rellene quien revise el proyecto")
-    questions = [
-        "1.  ¿Qué línea priorizarías primero y por qué?",
-        "2.  ¿Ves viable el modelo honesto frente a la competencia?",
-        "3.  ¿Qué riesgos o dudas te preocupan más?",
-        "4.  ¿Qué te falta para confiar en lanzarlo?",
+    heading(ax, "Hoja de ruta")
+
+    phases = [
+        ("Fase 0 — Núcleo", "Motor, reglas, base de datos, 3 líneas y panel", "Completado", GREEN),
+        ("Fase 1 — Validación de edge", "Datos reales + métricas de robustez (walk-forward, Monte Carlo)", "En curso", AMBER),
+        ("Fase 2 — Ejecución demo", "Conexión a broker/exchange en cuenta de práctica", "Pendiente", MUTED),
+        ("Fase 3 — Pagos", "Pasarela y facturación", "Pendiente", MUTED),
+        ("Fase 4 — Lanzamiento", "Marco legal y operativa comercial", "Pendiente", MUTED),
     ]
-    y = 80
-    for q in questions:
-        ax.text(9, y, q, fontsize=11.5, color=TEXT, weight="bold")
-        for j in range(3):
-            ax.add_patch(FancyArrowPatch((9, y - 4 - j * 4), (91, y - 4 - j * 4),
-                         arrowstyle="-", linewidth=0.8, color="#39424d"))
-        y -= 19
+    y = 78
+    for title, desc, status, color in phases:
+        box(ax, 9, y, 62, 9.5, "", edge=color)
+        ax.text(12, y + 6.4, title, fontsize=11, color=TEXT, weight="bold")
+        ax.text(12, y + 2.6, desc, fontsize=8.5, color=MUTED)
+        ax.text(74, y + 4.5, status, fontsize=10, color=color, weight="bold")
+        y -= 13
+
+    ax.add_patch(FancyBboxPatch((9, 8), 82, 16, boxstyle="round,pad=0.6,rounding_size=2",
+                 linewidth=1.4, edgecolor=AMBER, facecolor=CARD))
+    ax.text(50, 19, "Nota de realismo", ha="center", fontsize=11, color=AMBER, weight="bold")
+    ax.text(50, 13.5,
+            "El rendimiento pasado no garantiza resultados futuros y ningún sistema asegura superar\n"
+            "un challenge. La Fase 1 mide y demuestra si la estrategia tiene ventaja estadística (edge)\n"
+            "sobre datos reales antes de comprometer capital o lanzar comercialmente.",
+            ha="center", fontsize=8.5, color=TEXT)
     pdf.savefig(fig, facecolor=BG)
     plt.close(fig)
 
@@ -230,7 +241,7 @@ def main():
         page_flow(pdf)
         page_journey(pdf)
         page_status(pdf)
-        page_opinion(pdf)
+        page_roadmap(pdf)
         meta = pdf.infodict()
         meta["Title"] = "Fondeo Bot — Resumen del proyecto"
         meta["Author"] = "Fondeo Bot"
