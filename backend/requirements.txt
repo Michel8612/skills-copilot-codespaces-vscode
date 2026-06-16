@@ -1,0 +1,8 @@
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+pydantic==2.7.1
+numpy==1.26.4
+sqlmodel==0.0.22
+# Optional: enables the AI Agency's Claude-backed mode. The agency also runs
+# fully offline (deterministic, no API key) when this/ANTHROPIC_API_KEY is absent.
+anthropic==0.69.0

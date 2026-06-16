@@ -5,7 +5,12 @@ updates:
     schedule:
       interval: "monthly"
 
-  - package-ecosystem: "devcontainers"
-    directory: "/"
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "monthly"
+
+  - package-ecosystem: "npm"
+    directory: "/frontend"
     schedule:
       interval: "monthly"

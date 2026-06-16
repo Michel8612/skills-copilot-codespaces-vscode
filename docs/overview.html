@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fondeo Bot — Resumen del proyecto</title>
+<style>
+  :root{
+    --ink:#1a2230; --muted:#5b6675; --line:#e3e8ef; --bg:#ffffff; --soft:#f6f8fb;
+    --accent:#2d6cdf; --green:#1f9d57; --amber:#c98a00; --chip:#eef3fb;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); background:var(--soft); line-height:1.55;
+  }
+  .sheet{max-width:880px; margin:24px auto; background:var(--bg); border:1px solid var(--line);
+    border-radius:14px; padding:48px 56px; box-shadow:0 2px 18px rgba(20,30,50,.06);}
+  header.top{display:flex; justify-content:space-between; align-items:flex-start; gap:16px;
+    border-bottom:2px solid var(--ink); padding-bottom:18px; margin-bottom:28px;}
+  h1{font-size:30px; margin:0 0 4px;}
+  .tagline{color:var(--accent); font-weight:600; margin:0;}
+  .meta{color:var(--muted); font-size:13px; text-align:right; min-width:160px;}
+  h2{font-size:19px; margin:34px 0 10px; padding-bottom:6px; border-bottom:1px solid var(--line);}
+  h3{font-size:15px; margin:18px 0 6px;}
+  p{margin:8px 0;}
+  .muted{color:var(--muted);}
+  .lead{font-size:16px;}
+  ul{margin:8px 0; padding-left:20px;}
+  li{margin:4px 0;}
+  .lines{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin:14px 0;}
+  .line{border:1px solid var(--line); border-top:4px solid var(--accent); border-radius:10px; padding:14px;}
+  .line.pase{border-top-color:var(--amber)} .line.bot{border-top-color:var(--green)} .line.fondeo{border-top-color:var(--accent)}
+  .line h3{margin:0 0 6px} .line p{font-size:13.5px; color:var(--muted); margin:0}
+  .chips span{display:inline-block; background:var(--chip); color:var(--accent); border-radius:999px;
+    padding:3px 10px; font-size:12px; margin:2px 4px 2px 0;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  .ok li::marker{content:"✓  "; color:var(--green); font-weight:700;}
+  .note{background:var(--soft); border:1px solid var(--line); border-left:4px solid var(--amber);
+    border-radius:8px; padding:12px 14px; font-size:13.5px;}
+  table{width:100%; border-collapse:collapse; font-size:13.5px; margin-top:8px;}
+  th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--muted); font-weight:600;}
+  .phase-done{color:var(--green); font-weight:600;}
+  .phase-next{color:var(--amber); font-weight:600;}
+  figure{margin:14px 0; text-align:center;}
+  figcaption{color:var(--muted); font-size:12.5px; margin-top:6px;}
+  footer{margin-top:36px; padding-top:16px; border-top:1px solid var(--line); color:var(--muted); font-size:12.5px;}
+  .toolbar{position:sticky; top:0; background:rgba(246,248,251,.9); backdrop-filter:blur(4px);
+    text-align:center; padding:10px; z-index:10;}
+  .toolbar button{font:inherit; font-size:13px; border:1px solid var(--line); background:#fff; color:var(--ink);
+    border-radius:8px; padding:8px 14px; margin:0 4px; cursor:pointer;}
+  .toolbar button:hover{border-color:var(--accent); color:var(--accent);}
+  @media print{ .toolbar{display:none} body{background:#fff} .sheet{box-shadow:none; border:none; margin:0; border-radius:0; max-width:100%} }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <button onclick="window.print()">🖨️ Imprimir / Guardar como PDF</button>
+  <button id="editBtn" onclick="toggleEdit()">✏️ Editar</button>
+</div>
+
+<div class="sheet" id="sheet">
+  <header class="top">
+    <div>
+      <h1>Fondeo Bot</h1>
+      <p class="tagline">Trading algorítmico + empresa de fondeo honesta</p>
+    </div>
+    <div class="meta">
+      Resumen del proyecto<br/>Documento técnico-comercial<br/><span id="date"></span>
+    </div>
+  </header>
+
+  <p class="lead">
+    Fondeo Bot es una empresa que genera ingresos ayudando a operadores a obtener cuentas de trading
+    financiadas, mediante un bot automático cuyo rendimiento se <strong>comprueba de forma objetiva,
+    determinista y auditable</strong>. El modelo se construye sobre la transparencia: reglas públicas,
+    veredictos reproducibles y repartos claros — sin trucos ni promesas de rentabilidad.
+  </p>
+
+  <h2>1. A qué se dedica</h2>
+  <p>
+    En la industria del <em>fondeo</em>, las llamadas <em>prop firms</em> otorgan cuentas con su propio
+    capital (50&nbsp;000, 100&nbsp;000&nbsp;USD…) a quien supera una prueba (<em>challenge</em>) con reglas
+    estrictas de objetivo de beneficio y límites de pérdida. La mayoría de los participantes paga la cuota
+    y no la supera. Fondeo Bot aborda ese mercado con tres líneas de negocio complementarias:
+  </p>
+  <div class="lines">
+    <div class="line pase"><h3>Servicio de pase</h3><p>Superamos el challenge en nombre del cliente. Ingreso por cuota + comisión, con reintentos y reembolso transparentes.</p></div>
+    <div class="line bot"><h3>Venta del bot</h3><p>El bot como producto con licencia (suscripción o pago único). Ingreso recurrente.</p></div>
+    <div class="line fondeo"><h3>Empresa de fondeo</h3><p>Nuestra propia prop firm, con reglas propias y evaluación automática. Ingreso por cuotas de challenge.</p></div>
+  </div>
+  <p class="muted">Las tres comparten el mismo activo central —un bot fiable— y el mismo motor de evaluación.</p>
+
+  <h2>2. Mapa del flujo: el ecosistema</h2>
+  <figure>
+    <svg viewBox="0 0 760 470" width="100%" style="max-width:720px" font-family="inherit">
+      <defs>
+        <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#8c97a7"/>
+        </marker>
+      </defs>
+      <!-- bot -->
+      <rect x="290" y="20" width="180" height="64" rx="12" fill="#fff" stroke="#2d6cdf" stroke-width="2"/>
+      <text x="380" y="48" text-anchor="middle" font-size="17" font-weight="700" fill="#1a2230">EL BOT</text>
+      <text x="380" y="68" text-anchor="middle" font-size="13" fill="#5b6675">(validado)</text>
+      <!-- lines -->
+      <rect x="40"  y="150" width="190" height="56" rx="10" fill="#fff" stroke="#1f9d57" stroke-width="2"/>
+      <text x="135" y="184" text-anchor="middle" font-size="14" fill="#1a2230">Venta del bot</text>
+      <rect x="285" y="150" width="190" height="56" rx="10" fill="#fff" stroke="#2d6cdf" stroke-width="2"/>
+      <text x="380" y="184" text-anchor="middle" font-size="14" fill="#1a2230">Empresa de fondeo</text>
+      <rect x="530" y="150" width="190" height="56" rx="10" fill="#fff" stroke="#c98a00" stroke-width="2"/>
+      <text x="625" y="184" text-anchor="middle" font-size="14" fill="#1a2230">Servicio de pase</text>
+      <path d="M350,84 L160,150" stroke="#1f9d57" stroke-width="2" fill="none" marker-end="url(#ar)"/>
+      <path d="M380,84 L380,150" stroke="#2d6cdf" stroke-width="2" fill="none" marker-end="url(#ar)"/>
+      <path d="M410,84 L600,150" stroke="#c98a00" stroke-width="2" fill="none" marker-end="url(#ar)"/>
+      <!-- db -->
+      <rect x="250" y="270" width="260" height="60" rx="10" fill="#f6f8fb" stroke="#1a2230" stroke-width="1.5"/>
+      <text x="380" y="296" text-anchor="middle" font-size="13.5" font-weight="600" fill="#1a2230">BASE DE DATOS PROPIA</text>
+      <text x="380" y="315" text-anchor="middle" font-size="12" fill="#5b6675">cada operación genera datos reales</text>
+      <path d="M135,206 L300,270" stroke="#1f9d57" stroke-width="2" fill="none" marker-end="url(#ar)"/>
+      <path d="M380,206 L380,270" stroke="#2d6cdf" stroke-width="2" fill="none" marker-end="url(#ar)"/>
+      <path d="M625,206 L460,270" stroke="#c98a00" stroke-width="2" fill="none" marker-end="url(#ar)"/>
+      <!-- improve -->
+      <rect x="250" y="380" width="260" height="50" rx="10" fill="#fff" stroke="#1f9d57" stroke-width="2"/>
+      <text x="380" y="410" text-anchor="middle" font-size="13.5" fill="#1a2230">Mejora el bot y calibra reglas justas</text>
+      <path d="M380,330 L380,380" stroke="#8c97a7" stroke-width="2" fill="none" marker-end="url(#ar)"/>
+      <!-- flywheel return -->
+      <path d="M510,405 L730,405 L730,52 L470,52" stroke="#8c97a7" stroke-width="2" fill="none" marker-end="url(#ar)"/>
+      <text x="724" y="430" text-anchor="end" font-size="12" fill="#8c97a7">↻ el volante gira más fuerte en cada ciclo</text>
+    </svg>
+    <figcaption>Más datos → mejor bot → mejor producto → más clientes → más datos.</figcaption>
+  </figure>
+
+  <h2>3. Recorrido de un cliente</h2>
+  <table>
+    <tr><th style="width:30px">#</th><th>Etapa</th><th>Qué ocurre</th></tr>
+    <tr><td>1</td><td>Registro</td><td>El cliente crea su cuenta en la plataforma.</td></tr>
+    <tr><td>2</td><td>Elección de línea</td><td>Servicio de pase, licencia del bot o cuenta de fondeo.</td></tr>
+    <tr><td>3</td><td>Operación</td><td>El bot opera respetando las reglas del plan.</td></tr>
+    <tr><td>4</td><td>Evaluación</td><td>El motor dictamina con el mismo criterio para todos.</td></tr>
+    <tr><td>5</td><td>Resultado</td><td>Pasó / falló, con el detalle exacto de la regla y el momento.</td></tr>
+    <tr><td>6</td><td>Financiación y payout</td><td>Cuenta financiada y reparto de beneficios transparente.</td></tr>
+  </table>
+
+  <h2>4. Estado del proyecto</h2>
+  <div class="grid2">
+    <div>
+      <h3>Construido y verificado</h3>
+      <ul class="ok">
+        <li>Motor de trading + backtesting sin sesgo de anticipación</li>
+        <li>Motor de reglas de challenge auditable y reproducible</li>
+        <li>Empresa de fondeo con base de datos propia</li>
+        <li>Las 3 líneas de negocio + panel de cliente (registro/login)</li>
+        <li>Conector de datos reales de crypto</li>
+        <li>Agencia de IA de apoyo a la toma de decisiones</li>
+        <li>37 pruebas automatizadas en verde</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Principios de honestidad</h3>
+      <ul>
+        <li>Reglas públicas e idénticas para todos, congeladas por cuenta</li>
+        <li>Veredicto determinista y auditable (mismo motor para todos)</li>
+        <li>Repartos, reintentos y reembolsos transparentes</li>
+        <li>El mismo bot que se vende es el que se utiliza</li>
+        <li>Modelo de capital declarado sin ambigüedad</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>5. Hoja de ruta</h2>
+  <table>
+    <tr><th>Fase</th><th>Objetivo</th><th>Estado</th></tr>
+    <tr><td>0 — Núcleo</td><td>Motor, reglas, base de datos, 3 líneas y panel</td><td class="phase-done">Completado</td></tr>
+    <tr><td>1 — Validación de edge</td><td>Datos reales + métricas de robustez (walk-forward, Monte Carlo)</td><td class="phase-next">En curso</td></tr>
+    <tr><td>2 — Ejecución demo</td><td>Conexión a broker/exchange en cuenta de práctica</td><td class="muted">Pendiente</td></tr>
+    <tr><td>3 — Pagos</td><td>Pasarela y facturación</td><td class="muted">Pendiente</td></tr>
+    <tr><td>4 — Lanzamiento</td><td>Marco legal y operativa comercial</td><td class="muted">Pendiente</td></tr>
+  </table>
+
+  <div class="note" style="margin-top:18px">
+    <strong>Nota de realismo.</strong> El rendimiento pasado no garantiza resultados futuros y ningún
+    sistema asegura superar un challenge. El objetivo de la Fase&nbsp;1 es precisamente
+    <em>medir y demostrar</em> si la estrategia tiene ventaja estadística (<em>edge</em>) sobre datos
+    reales antes de comprometer capital o lanzar comercialmente.
+  </div>
+
+  <footer>
+    Fondeo Bot · documento de resumen · versión MVP. Cifras y alcance sujetos a la validación de la Fase&nbsp;1.
+  </footer>
+</div>
+
+<script>
+  document.getElementById('date').textContent =
+    new Date().toLocaleDateString('es-ES', {year:'numeric', month:'long', day:'numeric'});
+  function toggleEdit(){
+    const s = document.getElementById('sheet');
+    const on = s.getAttribute('contenteditable') === 'true';
+    s.setAttribute('contenteditable', on ? 'false' : 'true');
+    document.getElementById('editBtn').textContent = on ? '✏️ Editar' : '✅ Editando (clic para fijar)';
+    if(!on) s.focus();
+  }
+</script>
+</body>
+</html>

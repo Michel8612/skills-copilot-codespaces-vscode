@@ -1,0 +1,38 @@
+name: Log Myfxbook Sentiment
+
+# Forward-logs retail sentiment hourly so we can backtest it later.
+# DORMANT until the repo secrets MYFXBOOK_EMAIL and MYFXBOOK_PASSWORD are set —
+# without them the script is a no-op and the run stays green.
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # hourly, on the hour (UTC)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  log:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Log sentiment snapshot
+        env:
+          MYFXBOOK_EMAIL: ${{ secrets.MYFXBOOK_EMAIL }}
+          MYFXBOOK_PASSWORD: ${{ secrets.MYFXBOOK_PASSWORD }}
+        run: python backend/scripts/log_sentiment.py
+      - name: Commit new data (if any)
+        run: |
+          if [ -n "$(git status --porcelain data/sentiment)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add data/sentiment
+            git commit -m "chore: log Myfxbook sentiment snapshot"
+            git push
+          else
+            echo "No new sentiment data to commit."
+          fi

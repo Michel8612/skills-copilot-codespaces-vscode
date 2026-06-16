@@ -1,0 +1,64 @@
+name: Validate Real Data
+
+# Runs the edge validation against REAL crypto data on GitHub's runners, which
+# have open internet — a way to validate without changing the dev environment's
+# network policy. Trigger manually (workflow_dispatch).
+
+on:
+  # Auto-runs when this validation file changes on the branch (no default-branch
+  # requirement, unlike workflow_dispatch) — so it works straight from the PR branch.
+  push:
+    paths:
+      - ".github/workflows/validate-real.yml"
+      - "backend/validate_real.py"
+  workflow_dispatch:
+    inputs:
+      symbol:
+        description: "Símbolo (p. ej. BTCUSDT)"
+        default: "BTCUSDT"
+      timeframe:
+        description: "Temporalidad (1h, 4h, 1d)"
+        default: "4h"
+      bars:
+        description: "Número de velas"
+        default: "3000"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps
+        run: pip install -r requirements.txt
+
+      - name: Probe data hosts (diagnóstico)
+        run: |
+          python - <<'PY'
+          import urllib.request
+          hosts = {
+            "data-api.binance.vision": "https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=2",
+            "api.binance.com":         "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=2",
+            "api.binance.us":          "https://api.binance.us/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=2",
+            "kraken":                  "https://api.kraken.com/0/public/OHLC?pair=XBTUSD&interval=1440",
+          }
+          for name, url in hosts.items():
+              try:
+                  req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                  with urllib.request.urlopen(req, timeout=15) as r:
+                      print(f"{name}: OK ({len(r.read())} bytes)")
+              except Exception as e:
+                  print(f"{name}: FALLA {type(e).__name__} {str(e)[:80]}")
+          PY
+
+      - name: Validación de edge con datos reales
+        env:
+          SYMBOL: ${{ github.event.inputs.symbol }}
+          TF: ${{ github.event.inputs.timeframe }}
+          BARS: ${{ github.event.inputs.bars }}
+        run: python validate_real.py "${SYMBOL:-BTCUSDT}" "${TF:-4h}" "${BARS:-3000}"
