@@ -119,6 +119,18 @@ export interface ValidationResult {
 export const validateEdge = (payload: Record<string, unknown>) =>
   postJSON<ValidationResult>("/validate", payload);
 
+export interface OptimizeResult {
+  grid_search: { metric: string; evaluated: number; best: { params: Record<string, number>; score: number } | null; top: { params: Record<string, number>; score: number }[] };
+  walk_forward_optimization: {
+    steps?: number; note?: string; wfo_efficiency?: number;
+    pct_oos_profitable?: number; mean_oos_return_pct?: number;
+    mean_in_sample_score?: number; mean_out_of_sample_score?: number;
+  };
+}
+
+export const optimizeStrategy = (payload: Record<string, unknown>) =>
+  postJSON<OptimizeResult>("/optimize", payload);
+
 export async function fetchHistory(token: string) {
   const res = await fetch(`${BASE}/me/history`, {
     headers: { Authorization: `Bearer ${token}` },

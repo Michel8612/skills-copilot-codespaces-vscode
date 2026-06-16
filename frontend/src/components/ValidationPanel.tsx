@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { fetchMeta, validateEdge } from "../api";
-import type { ValidationResult } from "../api";
+import { fetchMeta, optimizeStrategy, validateEdge } from "../api";
+import type { OptimizeResult, ValidationResult } from "../api";
 import type { Meta } from "../types";
 
 const VERDICT: Record<string, { label: string; cls: string }> = {
@@ -20,6 +20,7 @@ export function ValidationPanel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [res, setRes] = useState<ValidationResult | null>(null);
+  const [opt, setOpt] = useState<OptimizeResult | null>(null);
 
   useEffect(() => {
     fetchMeta().then(setMeta).catch((e) => setError(String(e)));
@@ -30,6 +31,18 @@ export function ValidationPanel() {
     setError(null);
     try {
       setRes(await validateEdge({ market, symbol, source, strategy, bars, leverage, timeframe: "4h" }));
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function runOptimize() {
+    setLoading(true);
+    setError(null);
+    try {
+      setOpt(await optimizeStrategy({ market, symbol, source, strategy, bars, leverage, metric: "return", timeframe: "4h" }));
     } catch (e) {
       setError(String(e));
     } finally {
@@ -79,8 +92,37 @@ export function ValidationPanel() {
           </div>
         )}
         <button onClick={run} disabled={loading}>{loading ? "Analizando…" : "Validar edge"}</button>
+        <button className="tab" style={{ marginLeft: 8 }} onClick={runOptimize} disabled={loading}>
+          Optimizar parámetros
+        </button>
         {error && <p className="error">{error}</p>}
       </section>
+
+      {opt && (
+        <section className="card">
+          <h3 className="section-title">Optimización de parámetros</h3>
+          <p className="muted small">
+            Mejor combinación (en muestra): <strong>{JSON.stringify(opt.grid_search.best?.params)}</strong>
+            {" "}· entre {opt.grid_search.evaluated} combinaciones.
+          </p>
+          {opt.walk_forward_optimization.steps ? (
+            <ul className="history">
+              <li>
+                <strong>Eficiencia walk-forward: {opt.walk_forward_optimization.wfo_efficiency}</strong>
+                {" "}(≈1 = robusto · ≪1 = sobreajustado · &lt;0 = sin señal real)
+              </li>
+              <li>Tramos fuera de muestra rentables: {opt.walk_forward_optimization.pct_oos_profitable}%</li>
+              <li>Retorno medio fuera de muestra: {opt.walk_forward_optimization.mean_oos_return_pct}%</li>
+            </ul>
+          ) : (
+            <p className="muted small">{opt.walk_forward_optimization.note}</p>
+          )}
+          <p className="muted small">
+            La eficiencia walk-forward es el filtro anti-overfitting: cuánto del rendimiento en muestra
+            se mantiene fuera de muestra.
+          </p>
+        </section>
+      )}
 
       {res && v && (
         <section className="card">

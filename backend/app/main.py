@@ -46,8 +46,8 @@ def current_trader(
     if trader is None:
         raise HTTPException(status_code=401, detail="No autenticado")
     return trader
-from .schemas import AgencyRequest, RunRequest, ValidateRequest
-from .service import run_pipeline, validate_edge
+from .schemas import AgencyRequest, OptimizeRequest, RunRequest, ValidateRequest
+from .service import optimize, run_pipeline, validate_edge
 
 app = FastAPI(
     title="Fondeo Bot API",
@@ -102,6 +102,15 @@ def validate(req: ValidateRequest):
     """Assess whether a strategy shows a genuine edge (metrics + walk-forward + Monte Carlo)."""
     try:
         return validate_edge(req)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/optimize")
+def optimize_endpoint(req: OptimizeRequest):
+    """Optimize parameters and walk-forward test them (anti-overfitting)."""
+    try:
+        return optimize(req)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

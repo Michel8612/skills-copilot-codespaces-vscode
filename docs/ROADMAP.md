@@ -25,7 +25,9 @@ que funciona"*.
       sistema avisa con claridad y se usa `source="synthetic"`.
 - [x] **Arnés de validación de edge**: métricas de robustez (Sharpe, Sortino, profit factor,
       expectativa), walk-forward por tramos y Monte Carlo, con veredicto conservador (`/api/validate`).
-- [ ] Optimización de parámetros (walk-forward con re-optimización in-sample).
+- [x] **Optimización de parámetros + walk-forward optimization** (re-optimiza en muestra y prueba
+      fuera de muestra; reporta eficiencia WFO como filtro anti-overfitting). `/api/optimize`.
+- [x] Más estrategias de referencia (cruce de medias, breakout, RSI reversion, momentum).
 - [ ] Datos reales de forex/futuros (requieren proveedor/broker).
 - [ ] Más estrategias + optimización de parámetros y validación *walk-forward*.
 - [ ] Métricas de robustez: Sharpe, Sortino, expectativa, Monte Carlo sobre orden de trades.

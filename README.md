@@ -25,6 +25,7 @@ sobre esa base habilitar tres líneas de negocio:
 | Backtester | ✅ | Event-driven, sin look-ahead, marca a mercado con máximos/mínimos intrabar. |
 | **Motor de reglas de challenge** ⭐ | ✅ | Evalúa profit target, pérdida diaria, drawdown total (estático/trailing), días mínimos y límite de tiempo. |
 | **Validación de edge** 📈 | ✅ | Métricas de robustez (Sharpe, Sortino, profit factor, expectativa) + walk-forward + Monte Carlo, con veredicto conservador (`/api/validate`). |
+| **Optimización + WFO** 🔬 | ✅ | Grid search + walk-forward optimization (re-optimiza y prueba fuera de muestra; eficiencia WFO anti-overfitting). `/api/optimize`. 4 estrategias de referencia. |
 | **Agencia de IA** 🤖 | ✅ | Sistema multi-agente (estrategia, riesgo, datos, cumplimiento, negocio + director) que resuelve dilemas. Funciona offline (determinista) o con Claude. |
 | **Empresa de fondeo** 🏦 | ✅ | Base de datos propia (SQLite): planes honestos publicados, traders, cuentas y evaluación auditable. Reparto de beneficios transparente. |
 | **3 líneas de negocio** | ✅ | Fondeo + venta del bot (licencias) + servicio de pase (con reintentos y reembolso honestos). |

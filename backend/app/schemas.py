@@ -53,6 +53,19 @@ class ValidateRequest(BaseModel):
     dd_breach_pct: float = Field(10.0, gt=0)
 
 
+class OptimizeRequest(BaseModel):
+    market: str = "crypto"
+    symbol: str = "BTCUSDT"
+    timeframe: str = "4h"
+    bars: int = Field(2000, gt=100, le=20_000)
+    source: str = "synthetic"
+    strategy: str = "breakout"
+    leverage: float = Field(3.0, gt=0, le=500)
+    account_size: float = Field(100_000.0, gt=0)
+    metric: str = "sharpe"  # "sharpe" | "sortino" | "return"
+    windows: int = Field(5, ge=2, le=12)
+
+
 class PresetInfo(BaseModel):
     key: str
     config: ChallengeConfigSchema

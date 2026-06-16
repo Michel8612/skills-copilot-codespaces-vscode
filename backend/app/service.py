@@ -9,8 +9,9 @@ from .engine.backtest import run_backtest
 from .engine.challenge import PRESETS, ChallengeConfig, evaluate_challenge
 from .engine.data import get_data_provider
 from .engine.strategies import build_strategy
+from .engine.optimizer import grid_search, walk_forward_optimize
 from .engine.validation import compute_metrics, edge_verdict, monte_carlo, walk_forward
-from .schemas import RunRequest, ValidateRequest
+from .schemas import OptimizeRequest, RunRequest, ValidateRequest
 
 
 def _resolve_challenge(req: RunRequest) -> ChallengeConfig:
@@ -63,3 +64,14 @@ def validate_edge(req: ValidateRequest) -> Dict:
         "monte_carlo": mc,
         "verdict": verdict,
     }
+
+
+def optimize(req: OptimizeRequest) -> Dict:
+    """Grid search (in-sample) + walk-forward optimization (out-of-sample, honest)."""
+    provider = get_data_provider(req.source)
+    bars = provider.get_bars(req.market, req.symbol, req.timeframe, req.bars)
+    gs = grid_search(bars, req.strategy, req.account_size, req.leverage, req.timeframe, req.metric)
+    wfo = walk_forward_optimize(
+        bars, req.strategy, req.account_size, req.leverage, req.timeframe, req.metric, windows=req.windows
+    )
+    return {"request": req.model_dump(), "grid_search": gs, "walk_forward_optimization": wfo}
