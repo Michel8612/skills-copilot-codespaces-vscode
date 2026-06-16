@@ -49,4 +49,11 @@ bajista). Ya está implementado `ContrarianSentimentOracle`; falta alimentarlo c
 hace falta **registrar el sentimiento hacia adelante** (forward-logging) durante semanas y validar sobre
 ese periodo. Es el método científico correcto, pero lleva tiempo de calendario.
 
+**Cómo activar el registro** (arranca el reloj de datos):
+1. En GitHub → Settings → Secrets and variables → Actions, añade `MYFXBOOK_EMAIL` y `MYFXBOOK_PASSWORD`.
+2. El workflow `.github/workflows/log-sentiment.yml` corre cada hora y va guardando
+   `data/sentiment/<SYMBOL>.json` (`{fecha: % largos}`). Sin los secretos es un no-op (queda en verde).
+3. Tras unas semanas, cargamos esos datos (`load_sentiment_json`) en `ContrarianSentimentOracle` y
+   validamos con walk-forward sobre el periodo registrado.
+
 > Reproducible vía `.github/workflows/validate-real.yml`.
