@@ -15,12 +15,16 @@ from .agency.roster import list_roster
 from .engine.challenge import PRESETS
 from .engine.data import supported_markets, supported_timeframes
 from .engine.strategies import list_strategies
+from .fondeo import lines as fondeo_lines
 from .fondeo import service as fondeo_service
 from .fondeo.db import engine as fondeo_engine, get_session, init_db
 from .fondeo.models import Plan
 from .fondeo.schemas import (
     AccountEvaluate,
     AccountOpen,
+    LicenseBuy,
+    PassAttempt,
+    PassOrderCreate,
     PayoutCreate,
     PlanCreate,
     TraderCreate,
@@ -48,6 +52,7 @@ def _startup():
     init_db()
     with Session(fondeo_engine) as session:
         fondeo_service.seed_default_plans(session)
+        fondeo_lines.seed_default_tiers(session)
 
 
 @app.get("/api/health")
@@ -162,5 +167,70 @@ def fondeo_fund(account_id: int, session: Session = Depends(get_session)):
 def fondeo_payout(account_id: int, req: PayoutCreate, session: Session = Depends(get_session)):
     try:
         return fondeo_service.record_payout(session, account_id, req.gross_profit).model_dump()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+# --- Bot-sale line -------------------------------------------------------------
+
+
+@app.get("/api/bot/tiers")
+def bot_tiers(session: Session = Depends(get_session)):
+    return [t.model_dump() for t in fondeo_lines.list_tiers(session)]
+
+
+@app.get("/api/bot/licenses")
+def bot_licenses(session: Session = Depends(get_session)):
+    return [l.model_dump() for l in fondeo_lines.list_licenses(session)]
+
+
+@app.post("/api/bot/licenses")
+def bot_buy_license(req: LicenseBuy, session: Session = Depends(get_session)):
+    try:
+        return fondeo_lines.buy_license(session, req.trader_id, req.tier_id).model_dump()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/bot/licenses/{license_id}/cancel")
+def bot_cancel_license(license_id: int, session: Session = Depends(get_session)):
+    try:
+        return fondeo_lines.cancel_license(session, license_id).model_dump()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+# --- Pass-service line ---------------------------------------------------------
+
+
+@app.get("/api/pase/orders")
+def pase_orders(session: Session = Depends(get_session)):
+    return [o.model_dump() for o in fondeo_lines.list_pass_orders(session)]
+
+
+@app.post("/api/pase/orders")
+def pase_create_order(req: PassOrderCreate, session: Session = Depends(get_session)):
+    try:
+        return fondeo_lines.create_pass_order(session, req.trader_id, req.plan_id, req.price).model_dump()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/pase/orders/{order_id}/attempt")
+def pase_attempt(order_id: int, req: PassAttempt, session: Session = Depends(get_session)):
+    try:
+        return fondeo_lines.run_pass_attempt(
+            session, order_id,
+            strategy=req.strategy, strategy_params=req.strategy_params,
+            symbol=req.symbol, timeframe=req.timeframe, bars=req.bars, leverage=req.leverage,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/pase/orders/{order_id}/refund")
+def pase_refund(order_id: int, session: Session = Depends(get_session)):
+    try:
+        return fondeo_lines.refund_pass_order(session, order_id).model_dump()
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -88,3 +88,69 @@ class Payout(SQLModel, table=True):
     trader_share: float
     company_share: float
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+# --- Línea de negocio: VENTA DEL BOT -------------------------------------------
+
+
+class LicenseStatus(str, Enum):
+    active = "active"
+    cancelled = "cancelled"
+    expired = "expired"
+
+
+class BillingPeriod(str, Enum):
+    monthly = "monthly"
+    yearly = "yearly"
+    one_time = "one_time"
+
+
+class LicenseTier(SQLModel, table=True):
+    """A product tier for the bot-sale line (its own rules: límites de uso)."""
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    price: float = 0.0
+    period: BillingPeriod = BillingPeriod.monthly
+    max_accounts: int = 1            # cuántas cuentas puede operar a la vez
+    markets: str = "forex,futures,crypto"  # mercados permitidos (csv)
+    published: bool = True
+
+
+class License(SQLModel, table=True):
+    """A customer's active subscription to a LicenseTier."""
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    trader_id: int = Field(foreign_key="trader.id", index=True)
+    tier_id: int = Field(foreign_key="licensetier.id", index=True)
+    status: LicenseStatus = LicenseStatus.active
+    started_at: datetime = Field(default_factory=datetime.utcnow)
+    expires_at: Optional[datetime] = None
+
+
+# --- Línea de negocio: SERVICIO DE PASE ----------------------------------------
+
+
+class PassStatus(str, Enum):
+    queued = "queued"
+    passed = "passed"
+    failed = "failed"
+    refunded = "refunded"
+
+
+class PassOrder(SQLModel, table=True):
+    """An order to pass a challenge (a funding Plan) on behalf of a client.
+
+    Honest by design: a transparent price, a capped number of attempts, and an
+    explicit refund path — never a promise of approval.
+    """
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    trader_id: int = Field(foreign_key="trader.id", index=True)
+    plan_id: int = Field(foreign_key="plan.id", index=True)
+    price: float = 0.0
+    status: PassStatus = PassStatus.queued
+    attempts: int = 0
+    max_attempts: int = 3        # reintentos honestos incluidos en el precio
+    last_detail: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)

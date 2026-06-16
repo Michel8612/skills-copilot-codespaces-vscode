@@ -30,6 +30,26 @@ class PayoutCreate(BaseModel):
     gross_profit: float = Field(..., gt=0)
 
 
+class LicenseBuy(BaseModel):
+    trader_id: int
+    tier_id: int
+
+
+class PassOrderCreate(BaseModel):
+    trader_id: int
+    plan_id: int
+    price: Optional[float] = None
+
+
+class PassAttempt(BaseModel):
+    strategy: str = "breakout"
+    strategy_params: Dict = Field(default_factory=dict)
+    symbol: str = "AUTO"
+    timeframe: str = "4h"
+    bars: int = Field(1200, gt=10, le=20_000)
+    leverage: float = Field(3.0, gt=0, le=500)
+
+
 class PlanCreate(BaseModel):
     name: str
     market: str = "forex"
