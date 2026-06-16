@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Type
 
 from .data import Bar
+from .oracle import build_oracle
 
 
 class Strategy:
@@ -236,6 +237,53 @@ class TrendRSI(Strategy):
                 for p in (7, 14) for o in (30, 35, 40) for t in (100, 150)]
 
 
+@dataclass
+class OracleGatedTrendRSI(Strategy):
+    """TrendRSI, but only acts when an external oracle agrees with the signal.
+
+    Demonstrates the oracle integration point: the technical signal proposes a
+    trade and the oracle vetoes it unless its bias confirms the direction with
+    enough conviction. With the mock oracle this adds no real edge — it becomes
+    a genuine edge only when a real information feed replaces the mock.
+    """
+
+    name: str = field(default="oracle_trend_rsi", init=False)
+    period: int = 14
+    oversold: int = 35
+    trend: int = 100
+    oracle: str = "mock"
+    threshold: float = 0.1
+    allow_short: bool = True
+
+    def __post_init__(self) -> None:
+        self._oracle = build_oracle(self.oracle)
+        self._base = TrendRSI(
+            period=self.period, oversold=self.oversold,
+            trend=self.trend, allow_short=self.allow_short,
+        )
+
+    def target_position(self, bars: List[Bar]) -> int:
+        signal = self._base.target_position(bars)
+        if signal == 0:
+            return 0
+        bias = self._oracle.bias(bars)
+        if signal > 0 and bias >= self.threshold:
+            return 1
+        if signal < 0 and bias <= -self.threshold:
+            return -1
+        return 0
+
+    @classmethod
+    def describe(cls) -> Dict:
+        return {"name": cls.name, "params": {"period": 14, "oversold": 35, "trend": 100,
+                                             "oracle": "mock", "threshold": 0.1, "allow_short": True}}
+
+    @classmethod
+    def param_grid(cls) -> List[Dict]:
+        return [{"period": p, "oversold": o, "threshold": th}
+                for p in (7, 14) for o in (30, 40) for th in (0.05, 0.1, 0.2)]
+
+
 STRATEGY_REGISTRY: Dict[str, Type[Strategy]] = {
     MovingAverageCrossover.name: MovingAverageCrossover,
     Breakout.name: Breakout,
@@ -243,6 +291,7 @@ STRATEGY_REGISTRY: Dict[str, Type[Strategy]] = {
     Momentum.name: Momentum,
     TrendBreakout.name: TrendBreakout,
     TrendRSI.name: TrendRSI,
+    OracleGatedTrendRSI.name: OracleGatedTrendRSI,
 }
 
 def build_strategy(name: str, params: Dict | None = None) -> Strategy:

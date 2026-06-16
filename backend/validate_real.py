@@ -20,7 +20,7 @@ import sys
 from app.schemas import OptimizeRequest, ValidateRequest
 from app.service import optimize, validate_edge
 
-STRATEGIES = ["breakout", "rsi_reversion", "momentum", "ma_crossover", "trend_breakout", "trend_rsi"]
+STRATEGIES = ["breakout", "rsi_reversion", "momentum", "ma_crossover", "trend_breakout", "trend_rsi", "oracle_trend_rsi"]
 
 
 def main() -> int:
